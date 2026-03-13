@@ -1,6 +1,6 @@
-from passlib.context import CryptoContext
+from passlib.context import CryptContext
 
-pwd_context = CryptoContext(
+pwd_context = CryptContext(
   schemes=["bcrypt"],
   deprecated="auto"
 )
