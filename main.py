@@ -22,12 +22,25 @@ def root():
         detail="Nothing to do here "
     )
 
-@app.get("/subjects")
-def get_subjects():
-    return {"message": "В разработке..."}
+@app.get("/students/me/subjects")
+async def get_subjects(current_user = Depends(get_user)):
+    
+    conn = await asyncpg.connect(db_url)
+    
+    subjects = await conn.fetch(
+        """SELECT subjects.id, subjects.name FROM subjects
+        JOIN students ON students.class_id = subjects.class_id
+        WHERE user_id = $1""",
+        current_user["id"]
+    )
+    
+    await conn.close()
+    
+    return [dict(row) for row in subjects]
 
 @app.get("/info")
 def get_info():
+    
     return {
         "name": "Nolejje",
         "version": "alpha 0.2"
@@ -38,19 +51,19 @@ async def get_students(student_id: int):
     
     conn = await asyncpg.connect(db_url)
     
-    rows = await conn.fetch("""SELECT users.name FROM students
+    students = await conn.fetch("""SELECT users.name FROM students
                             JOIN users ON students.user_id = users.id
                             WHERE students.id = $1""", student_id)
     
     await conn.close()
     
     
-    if rows is None:
+    if students is None:
         raise HTTPException(
             status_code=404,
             detail="No students in table :/"
         )
-    return [dict(row) for row in rows]
+    return [dict(row) for row in students]
 
 @app.get("/users/me")
 async def get_current_user(current_user = Depends(get_user)):
@@ -58,13 +71,17 @@ async def get_current_user(current_user = Depends(get_user)):
 
 @app.get("/students/me")
 async def get_current_student(current_user = Depends(get_user)):
+    
     conn = await asyncpg.connect(db_url)
-    rows = await conn.fetchrow("""
+    
+    student = await conn.fetchrow("""
         SELECT * FROM students WHERE user_id = $1""", current_user["id"]
     )
+    
     await conn.close()
-    student_id = rows["id"]
-    class_id = rows["class_id"]
+    
+    student_id = student["id"]
+    class_id = student["class_id"]
     return {"student_id": student_id, "class_id": class_id}
 
 # <! POST-запросы!> #
@@ -118,7 +135,7 @@ async def login(user: login):
             detail="Invalid email or password"
         )
     
-    if not verify_password:
+    if not verify_password(user.password, db_user["passwd_hash"]):
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password"
