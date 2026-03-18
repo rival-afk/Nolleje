@@ -85,6 +85,11 @@ async def get_current_student(current_user = Depends(get_user)):
     class_id = student["class_id"]
     return {"student_id": student_id, "class_id": class_id}
 
+@app.get("/students/me/homework")
+async def get_homework (current_user = Depends(get_user)):
+    
+    pass
+
 # <! POST-запросы!> #
 
 @app.post("/auth/register")
@@ -99,19 +104,39 @@ async def register(user: Register):
                 status_code=400,
                 detail="Email already registered"
             )
-    
+
         password_hash = hash_password(user.password)
 
-        await conn.execute(
+        id =await conn.fetchrow(
             """
             INSERT INTO users (name, email, passwd_hash, role)
             VALUES ($1, $2, $3, $4)
+            RETURNING id
             """,
             user.name,
             user.email,
             password_hash,
             user.role
         )
+        
+        user_id = id
+        
+        if user.role == 'student':
+            await conn.execute("""
+                INSERT INTO students (user_id, class_id)
+                VALUES ($1, $2)
+                """,
+                user_id,
+                user.class_id
+            )
+        
+        if user.role == 'teacher':
+            await conn.execute("""
+                INSERT INTO teachers (user_id)
+                VALUES ($1)
+                """,
+                user_id
+                )
     
     return {"message": "User created"}
 
