@@ -62,7 +62,7 @@ async def get_students(student_id: int):
                             JOIN users ON students.user_id = users.id
                             WHERE students.id = $1""", student_id)
     
-    if students is None:
+    if students is []:
         raise HTTPException(
             status_code=404,
             detail="No students in table :/"
@@ -85,8 +85,8 @@ async def get_current_student(current_user = Depends(get_user)):
     class_id = student["class_id"]
     return {"student_id": student_id, "class_id": class_id}
 
-@app.get("/students/me/homework")
-async def get_homework (current_user = Depends(get_user)):
+@app.get("/students/me/homeworks")
+async def get_homeworks (current_user = Depends(get_user)):
     
     async with db.pool.acquire() as conn:
         
@@ -96,16 +96,54 @@ async def get_homework (current_user = Depends(get_user)):
             current_user["id"]
             )
         
-        homework = await conn.fetch("""
+        if not student:
+            raise HTTPException(
+                status_code=404,
+                detail="Student not found :\\"
+            )
+        
+        homeworks = await conn.fetch("""
             SELECT h.id, h.title, h.description, h.due_date FROM subjects
             JOIN homeworks h ON h.subject_id = subjects.id
-            WHERE students.class_id = $1
+            WHERE subjects.class_id = $1
             ORDER BY h.due_date ASC;
             """,
             student["class_id"]
             )
     
-    return [dict(row) for row in homework]
+    return [dict(row) for row in homeworks]
+
+@app.get("/homework")
+async def get_homework (subject_id: int, current_user = Depends(get_user)):
+    
+    async with db.pool.acquire() as conn:
+        
+        class_id = await conn.fetchrow("""
+            SELECT students.class_id FROM students WHERE user_id = $1
+            """,
+            current_user["id"]
+            )
+        
+        subject_class_id = await conn.fetchrow("""
+            SELECT class_id FROM subjects WHERE id = $1 
+            """,
+            subject_id
+            )
+        
+        if class_id["class_id"] == subject_class_id["class_id"]:
+            homework = await conn.fetchrow("""
+                SELECT id, title, description, due_date FROM homeworks
+                WHERE subject_id = $1
+                ORDER BY due_date ASC
+            """
+            )
+        else:
+            raise HTTPException(
+                status_code=403,
+                detail="Forbidden \\:-|"
+            )
+    
+    return homework
 
 # <! POST-запросы!> #
 
@@ -136,7 +174,7 @@ async def register(user: Register):
             user.role
         )
         
-        user_id = id
+        user_id = id["id"]
         
         if user.role == 'student':
             await conn.execute("""
