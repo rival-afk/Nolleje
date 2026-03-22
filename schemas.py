@@ -6,7 +6,7 @@ class Register(BaseModel):
   email: str
   password: str
   role: str
-  class_id: Optional[str]
+  class_id: Optional[int]
 
 class Login(BaseModel):
   email: str

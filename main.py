@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
+from fastapi.middleware.cors import CORSMiddleware
 #from starlette.exceptions import HTTPException as StarletteHTTPException
 import asyncpg
-
 
 # из проекта
 from db import create_pool, close_pool
@@ -14,6 +14,15 @@ from jwt_handler import create_access_token
 from auth import get_user
 
 app = FastAPI()
+
+# <! Middlewares !> #       (пока можно все. добавляю только ради обхода CORS)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # <! Event handlers !> #
 
@@ -62,7 +71,7 @@ async def get_students(student_id: int):
                             JOIN users ON students.user_id = users.id
                             WHERE students.id = $1""", student_id)
     
-    if students is []:
+    if students == []:
         raise HTTPException(
             status_code=404,
             detail="No students in table :/"
@@ -135,7 +144,7 @@ async def get_homework (subject_id: int, current_user = Depends(get_user)):
                 SELECT id, title, description, due_date FROM homeworks
                 WHERE subject_id = $1
                 ORDER BY due_date ASC
-            """
+            """, subject_id
             )
         else:
             raise HTTPException(
