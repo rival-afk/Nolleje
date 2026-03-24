@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 #from starlette.exceptions import HTTPException as StarletteHTTPException
-import asyncpg
+import time
 
 # из проекта
 from db import create_pool, close_pool
@@ -76,7 +76,7 @@ def get_info():
     
     return {
         "name": "Nolejje",
-        "version": "beta 4.6.0"         #(начал вести учет версий)
+        "version": "beta 4.7.0"         #(начал вести учет версий)
     }
 
 @app.get("/students")
@@ -171,6 +171,23 @@ async def get_homework (subject_id: int, current_user = Depends(get_user)):
             )
     
     return homework
+
+@app.get("/ping")
+async def get_ping():
+    
+    before = time.time_ns()
+    
+    after = time.time_ns()
+    
+    difference = after - before
+    
+    diff_sec = difference / 1000000
+    
+    rounded_ds = round(diff_sec)
+    return {
+        "message": "Pong!",
+        "ping": rounded_ds
+    }
 
 # <! POST-запросы!> #
 
