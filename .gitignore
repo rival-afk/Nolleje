@@ -12,3 +12,9 @@ test*
 
 # мой скрипт
 commit.sh
+
+# а что если убрать .gitignore
+/.gitignore
+
+# от DataGrip и возможно других IDE от JetBrains появилась папка .idea
+/.idea/

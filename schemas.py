@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
+from datetime import date
 
 class Register(BaseModel):
   name: str
@@ -16,3 +17,4 @@ class GradePost(BaseModel):
   student_id: int
   subject_id: int
   grade: int
+  date: date

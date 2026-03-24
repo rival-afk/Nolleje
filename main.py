@@ -24,6 +24,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# <! Functions !> #         (для функций не связанных с эндпоинтами)
+
+async def get_current_student(current_user=Depends(get_user)):
+    async with db.pool.acquire() as conn:
+        student = await conn.fetchrow("SELECT * FROM students WHERE user_id=$1", current_user["id"])
+        if not student:
+            raise HTTPException(status_code=404, detail="Мы перерыли всю бд, но так его и не нашли :(")
+    return student
+
 # <! Event handlers !> #
 
 @app.on_event("startup")
@@ -39,7 +48,7 @@ async def shutdown():
 def root():
     raise HTTPException(
         status_code=204,
-        detail="Nothing to do here "
+        detail="Nothing to do here"
     )
 
 @app.get("/students/me/subjects")
@@ -60,7 +69,7 @@ def get_info():
     
     return {
         "name": "Nolejje",
-        "version": "alpha 0.2"
+        "version": "beta 4.6.0"         #(начал вести учет версий)
     }
 
 @app.get("/students")
@@ -83,27 +92,15 @@ async def get_current_user(current_user = Depends(get_user)):
     return current_user
 
 @app.get("/students/me")
-async def get_current_student(current_user = Depends(get_user)):
-    
-    async with db.pool.acquire() as conn:
-        student = await conn.fetchrow("""
-        SELECT * FROM students WHERE user_id = $1""", current_user["id"]
-    )
-    
+async def get_current_student(student = Depends(get_current_student)):
     student_id = student["id"]
     class_id = student["class_id"]
     return {"student_id": student_id, "class_id": class_id}
 
 @app.get("/students/me/homeworks")
-async def get_homeworks (current_user = Depends(get_user)):
+async def get_homeworks (student = Depends(get_current_student)):
     
     async with db.pool.acquire() as conn:
-        
-        student = await conn.fetchrow("""
-            SELECT * FROM students WHERE user_id = $1
-            """,
-            current_user["id"]
-            )
         
         if not student:
             raise HTTPException(
@@ -128,7 +125,7 @@ async def get_homework (subject_id: int, current_user = Depends(get_user)):
     async with db.pool.acquire() as conn:
         
         class_id = await conn.fetchrow("""
-            SELECT students.class_id FROM students WHERE user_id = $1
+            SELECT class_id FROM students WHERE user_id = $1
             """,
             current_user["id"]
             )
@@ -196,10 +193,11 @@ async def register(user: Register):
         
         if user.role == 'teacher':
             await conn.execute("""
-                INSERT INTO teachers (user_id)
-                VALUES ($1)
+                INSERT INTO teachers (user_id, class_id)
+                VALUES ($1, $2)
                 """,
-                user_id
+                user_id,
+                user.class_id
                 )
     
     return {"message": "User created"}
@@ -233,21 +231,61 @@ async def login(user: Login):
 @app.post("/grades")
 async def grades (grades: GradePost, current_user = Depends(get_user)):
     
+    
     if current_user["role"] != "teacher":
-        raise HTTPException(
-            status_code=403,
-            detail="Forbidden :|"
-        )
+            raise HTTPException(
+                status_code=403,
+                detail="Forbidden :|"
+            )
     
     async with db.pool.acquire() as conn:
+        
+        teacher_id = await conn.fetchrow("""
+            SELECT id FROM teachers
+            WHERE user_id = $1
+            """,
+            current_user["id"]
+            )
+        
+        if teacher_id == None:
+            raise HTTPException(
+                status_code=403,
+                detail="Forbidden. You aren't a teacher"
+            )
+        
+        subject_teacher_class_id = await conn.fetchrow("""
+            SELECT class_id, teacher_id FROM subjects WHERE id = $1
+            """,
+            grades.subject_id
+            )
+        
+        if teacher_id["id"] != subject_teacher_class_id["teacher_id"]:
+            raise HTTPException(
+                status_code=403,
+                detail="Forbidden :|"
+            )
+        
+        student_class_id = await conn.fetchrow("""
+            SELECT class_id FROM students WHERE id = $1
+            """,
+            grades.student_id
+            )
+        
+        if subject_teacher_class_id["class_id"] != student_class_id["class_id"]:
+            raise HTTPException(
+                status_code=403,
+                detail="Forbidden :|"
+            )
+        
         await conn.execute(
         """
-        INSERT INTO grades (student_id, subject_id, grade)
-        VALUES ($1, $2, $3)
+        INSERT INTO grades (student_id, subject_id, grade, date)
+        VALUES ($1, $2, $3, $4)
         """,
         grades.student_id,
         grades.subject_id,
-        grades.grade
+        grades.grade,
+        grades.date
     )
     
     return {"status": "Successful"}
