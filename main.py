@@ -4,6 +4,7 @@ from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 #from starlette.exceptions import HTTPException as StarletteHTTPException
 import time
+import requests
 
 # из проекта
 from db import create_pool, close_pool
@@ -76,7 +77,7 @@ def get_info():
     
     return {
         "name": "Nolejje",
-        "version": "beta 4.7.0"         #(начал вести учет версий)
+        "version": "beta 4.8.0"
     }
 
 @app.get("/students")
@@ -177,6 +178,18 @@ async def get_ping():
     
     before = time.time_ns()
     
+    try:
+        url = "https://google.com"
+        
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            pass
+        else:
+            print(f"Произошла ошибка: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print("An error occured while requesting ", url)
+    
     after = time.time_ns()
     
     difference = after - before
@@ -188,6 +201,10 @@ async def get_ping():
         "message": "Pong!",
         "ping": rounded_ds
     }
+
+@app.get("/status")
+async def get_status():
+    pass
 
 # <! POST-запросы!> #
 
