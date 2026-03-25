@@ -17,6 +17,9 @@ from auth import get_user
 
 app = FastAPI()
 
+with open ("version.json") as file:
+    VERSION_INFO = json.load(file)
+
 # <! Middlewares !> #       (пока можно все. добавляю только ради обхода CORS)
 
 app.add_middleware(
@@ -76,22 +79,21 @@ async def get_subjects(current_user = Depends(get_user)):
 @app.get("/info")
 def get_info():
     
-    with open ("version.json") as file:
-        version = json.load(file)
     
     return {
         "name": "Nolejje",
-        "version": version["version"],
-        "updated": version["updated"]
+        "version": VERSION_INFO["version"],
+        "updated": VERSION_INFO["updated"]
     }
 
 @app.get("/students")
 async def get_students(student_id: int):
     
     async with db.pool.acquire() as conn:
-        students = await conn.fetch("""SELECT users.name FROM students
-                            JOIN users ON students.user_id = users.id
-                            WHERE students.id = $1""", student_id)
+        students = await conn.fetch("""
+            SELECT users.name FROM students
+            JOIN users ON students.user_id = users.id
+            WHERE students.id = $1""", student_id)
     
     if students == []:
         raise HTTPException(
@@ -209,7 +211,28 @@ async def get_ping():
 
 @app.get("/status")
 async def get_status():
-    pass
+    
+    server = "online"
+    
+    db_status = "down"
+    
+    try:
+        async with db.pool.acquire() as conn:
+            result = await conn.fetchrow("""
+                SELECT 1
+            """)
+        
+        db_status = "available"
+        
+    except:
+        db_status = "down"
+    
+    if db_status == "available":
+        status = "ok"
+    else:
+        status = "error"
+    
+    return {"status": status, "server": server, "db": db_status, "version": VERSION_INFO["version"]}
 
 # <! POST-запросы!> #
 
