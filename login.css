@@ -13,18 +13,17 @@ body {
   align-items: center;
 }
 
-.login_window {
+.window {
   display: flex;
   flex-direction: column;
   background-color: #2a2a2a;
   width: 500px;
-  height: 600px;
   padding: 0 20px 0 20px;
   outline: 3px solid #333333;
   border-radius: 25px;
 }
 
-.login_h1 {
+.h1 {
   font-family: 'Unbounded';
   font-size: 35px;
   font-weight: 400;
@@ -40,11 +39,27 @@ body {
 }
 
 
-.login_input {
+.input {
   margin-bottom: 20px;
   outline: 3px solid #333333;
   color: #ffffff;
   background-color: #2a2a2a;
   border-radius: 15px;
   height: 40px;
+}
+
+.button {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  color: #1e1e1e;
+  background-color: #ffffff;
+  align-items: center;
+}
+
+#register {
+  display:block;
+}
+
+#login {
+  display: none;
 }
