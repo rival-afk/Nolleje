@@ -258,6 +258,10 @@ async def get_status():
     
     return {"status": status, "server": server, "db": db_status, "version": VERSION_INFO["version"]}
 
+@app.get("/classes")
+async def get_classes():
+    pass
+
 # <! POST-запросы!> #
 
 @app.post("/auth/register")
@@ -274,6 +278,28 @@ async def register(user: Register):
             )
 
         password_hash = hash_password(user.password)
+
+        if not user.role in ('student', 'teacher', 'admin'):
+            raise HTTPException(
+                status_code=400,
+                detail="Incorrect role"
+            )
+        
+        if user.role == 'student' and user.class_id == None:
+            raise HTTPException(
+                status_code=400,
+                detail="Class ID is required for this role"
+            )
+        
+        class_exist = await conn.fetchval(
+                """SELECT 1 FROM classes WHERE class_id = $1""", user.class_id
+            )
+        
+        if not class_exist:
+            raise HTTPException(
+                status_code=400,
+                detail="Class don't exist"
+            )
 
         id =await conn.fetchrow(
             """
