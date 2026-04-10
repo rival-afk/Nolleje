@@ -441,6 +441,47 @@ async def grades (grades: GradePost, current_user = Depends(get_user)):
     
     return {"status": "Successful"}
 
+@app.post("/select_class")
+async def post_get_class(class_id: int, current_user = Depends(get_user)):
+    
+    if current_user["role"] != 'teacher':
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden"
+        )
+    
+    async with db.pool.acquire() as conn:
+        teacher_class_id = await conn.fetchrow("""
+        SELECT class_id FROM teachers
+        WHERE user_id = $1
+        """,
+        current_user["id"])
+        
+        if teacher_class_id["class_id"] != None:
+            raise HTTPException(
+                status_code=400,
+                detail="У вас уже есть класс"
+            )
+        
+        class_exist = await conn.fetchrow("""
+        SELECT 1 FROM classes WHERE class_id = $1
+        """,
+        class_id)
+        
+        if class_exist != 1:
+            raise HTTPException(
+                status_code=400,
+                detail="Class doesn't exist"
+            )
+        
+        await conn.execute("""
+        UPDATE teachers SET class_id = $1 WHERE user_id = $2;
+        """,
+        class_id,
+        current_user["id"])
+    
+    return {"status": "Successful"}
+
 # <! Error Handlers !> #        my English is very well)
 
 @app.exception_handler(404)

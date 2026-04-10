@@ -8,7 +8,7 @@ const registerName = document.getElementById("register-name");
 const registerEmail = document.getElementById("register-email");
 const registerPassword = document.getElementById("register-password");
 const classesList = document.getElementById("class-select");
-const classes = fetch("http://localhost:8000/classes")
+const classes = fetch("/api/classes")
 .then(response => response.json())
 .then(data => {
   data.forEach(item => {
@@ -60,7 +60,7 @@ loginButton.addEventListener("click", function () {
   const email = loginEmail.value;
   const password = loginPassword.value;
   
-  fetch("http://localhost:8000/auth/login", {
+  fetch("/api/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -107,7 +107,7 @@ registerButton.addEventListener("click", function () {
 
   console.log(class_id, typeof class_id);
 
-  fetch("http://localhost:8000/auth/register", {
+  fetch("/api/auth/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -124,7 +124,7 @@ registerButton.addEventListener("click", function () {
     if (!response.ok) {
       throw new OverconstrainedError("Ошибка в процессе регистрации")
     }
-    return fetch("http://localhost:8000/auth/login", {
+    return fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -144,7 +144,7 @@ registerButton.addEventListener("click", function () {
       const token = data.access_token;
       localStorage.setItem("token", token);
 
-      return fetch("http://localhost:8000/users/me", {
+      return fetch("/api/users/me", {
         headers: {
           "Authorization": "Bearer " + token
         }
