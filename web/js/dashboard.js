@@ -1,16 +1,8 @@
-const token = localStorage.getItem("access_token");
-const user = fetch("/api/users/me", {
-  method:"GET",
-  headers: {
-    "Authorization": "Bearer " + token
-  }
-})
-.then(response => {
-  if (!response.ok) {
-    document.getElementById("error").textContent = "Ошибка при получении текущего пользователя";
-    throw new Error("Ошибка при получении текущего пользователя");
-  };
-  return response.json();
-});
+async function init() {
+  const user = await checkAuth();
+  return user;
+};
 
-console.log(user);
+init();
+
+

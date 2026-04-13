@@ -78,7 +78,7 @@ loginButton.addEventListener("click", function () {
   })
   .then(data => {
     localStorage.setItem("access_token", data.access_token);
-    window.location.href = "../dashboard.html";
+    window.location.href = "/dashboard";
   })
   .catch(error => {
     document.getElementById("error").textContent = error
@@ -104,8 +104,6 @@ registerButton.addEventListener("click", function () {
   if (role = 'student') {
     class_id = Number(class_id_str);
   };
-
-  console.log(class_id, typeof class_id);
 
   fetch("/api/auth/register", {
     method: "POST",
@@ -158,9 +156,9 @@ registerButton.addEventListener("click", function () {
     })
     .then(user => {
       if (user.role == 'teacher') {
-        window.location.href = "../choose_class.html";
+        window.location.href = "/choose_class";
       } else {
-        window.location.href = "../dashboard.html";
+        window.location.href = "/dashboard";
       };
     })
     .catch(error => {
