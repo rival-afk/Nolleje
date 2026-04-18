@@ -14,7 +14,7 @@ userRole.textContent = user["role"];
 
 });
 
-const content = document.getElementById("homework");
+const homework = document.getElementById("homework");
 
 async function getHomeworks() {
   const token = localStorage.getItem("access_token");
@@ -31,7 +31,11 @@ async function getHomeworks() {
 
   const data = await response.json();
 
-  content.textContent = JSON.stringify(data, null, 2);
+  if (data.length == 0) {
+    homework.textContent = "Нет домашних заданий!"
+  };
+
+  homework.textContent = JSON.stringify(data, null, 2);
 };
 
 getHomeworks();
