@@ -39,6 +39,7 @@ async function refreshToken() {
   const token = localStorage.getItem("access_token");
   const timeLeft = parseToken(token);
   const now = Date.now() / 1000;
+  let data = null;
 
   if (!(timeLeft.exp - now < 300)) {
     return token;
@@ -52,12 +53,13 @@ async function refreshToken() {
   });
 
   if (response.status == 401) {
-    const data = await response.json().catch((e) => {
+    data = await response.json().catch((e) => {
       throw new Error(e);
     });
 
     if (data.detail == "Expired Token") {
       window.location.href = "/login";
+      throw new Error("Токен истек. Редирект...")
     }
   }
 

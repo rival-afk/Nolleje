@@ -40,7 +40,7 @@ async def get_current_student(current_user=Depends(get_user)):
         if student == None:
             raise HTTPException(
                 status_code=404,
-                detail="Not Found"
+                detail="Student Not Found"
             )
         
         if not student:
@@ -493,7 +493,21 @@ async def post_get_class(class_id: int, current_user = Depends(get_user)):
 
 @app.exception_handler(404)
 async def not_found_handler(request: Request, exc):
+    if hasattr(exc, 'detail') and exc.detail:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "error": "Not Found :(",
+                "detail": exc.detail,
+                "path": request.url.path
+            }
+        )
+    
     return JSONResponse(
         status_code=404,
-        content={"error": "Not Found :("}
+        content={
+            "error": "Not Found :(",
+            "path": request.url.path,
+            "message": f"Route '{request.url.path}' not found"
+        }
     )
