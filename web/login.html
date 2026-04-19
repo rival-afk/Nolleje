@@ -17,32 +17,34 @@
         <button id="registerTab" class="tab">Регистрация</button>
         <div class="tab-bg"></div>
       </div>
-      <div id="register">
-        <h1 class="h1">Добро пожаловать</h1>
-        <div class="inputs">
-          <input class="input" id="register-name" type="text" placeholder="Имя">
-          <input class="input" id="register-email" type="email" placeholder="Почта">
-          <input class="input" id="register-password" type="password" placeholder="Пароль">
-          <div class="role_tabs">
-            <button class="role_tab" id="student">Ученик</button>
-            <button class="role_tab" id="teacher">Учитель</button>
-            <button class="role_tab" id="admin">Админ</button>
+      <div id="container">
+        <div id="register" class="form hidden">
+          <h1 class="h1">Добро пожаловать</h1>
+          <div class="inputs">
+            <input class="input" id="register-name" type="text" placeholder="Имя">
+            <input class="input" id="register-email" type="email" placeholder="Почта">
+            <input class="input" id="register-password" type="password" placeholder="Пароль">
+            <div class="role_tabs">
+              <button class="role_tab" id="student">Ученик</button>
+              <button class="role_tab" id="teacher">Учитель</button>
+              <button class="role_tab" id="admin">Админ</button>
+            </div>
+            <select id="class-select">
+              <option>Выбери класс</option>
+            </select>
           </div>
-          <select id="class-select">
-            <option>Выбери класс</option>
-          </select>
+          <button class="button" id="register-button">Зарегестрироваться</button>
         </div>
-        <button class="button" id="register-button">Зарегестрироваться</button>
-      </div>
-      <div id="login">
-        <h1 class="h1">С возвращением</h1>
-        <div class="inputs">
-          <input class="input" id="login-email" type="email" placeholder="Почта">
-          <input class="input" id="login-password" type="password" placeholder="Пароль">
+        <div id="login" class="form visible">
+          <h1 class="h1">С возвращением</h1>
+          <div class="inputs">
+            <input class="input" id="login-email" type="email" placeholder="Почта">
+            <input class="input" id="login-password" type="password" placeholder="Пароль">
+          </div>
+          <button class="button" id="login-button">Войти</button>
         </div>
-        <button class="button" id="login-button">Войти</button>
-        <div id="error"></div>
       </div>
+      <div id="error"></div>
     </div>
   </div>
 </body>

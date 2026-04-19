@@ -47,8 +47,11 @@ roleTeacherButton.addEventListener("click", function () {
 });
 
 loginTab.addEventListener("click", function () {
-  login.style.display = "block";
-  register.style.display = "none";
+  login.classList.add("visible");
+  login.classList.remove("hidden");
+  register.classList.add("hidden");
+  register.classList.remove("visible");
+
   loginTab.classList.add("active");
   registerTab.classList.remove("active");
 
@@ -57,8 +60,11 @@ loginTab.addEventListener("click", function () {
 });
 
 registerTab.addEventListener("click", function () {
-  login.style.display = "none";
-  register.style.display = "block";
+  login.classList.add("hidden");
+  login.classList.remove("visible");
+  register.classList.add("visible");
+  register.classList.remove("hidden");
+
   loginTab.classList.remove("active");
   registerTab.classList.add("active");
 
