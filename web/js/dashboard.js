@@ -12,6 +12,13 @@ userName.textContent = user["name"];
 const userRole = document.getElementById("user-role");
 userRole.textContent = user["role"];
 
+let userIcon = user["name"].split(" ");
+if (userIcon.length == 1) {
+  userIcon = userIcon[0].charAt(0).toUpperCase();
+} else {
+  userIcon = userIcon[0].charAt(0).toUpperCase() + userIcon[1].charAt(1).toUpperCase();
+}
+
 if (user.role == "student") {
   getHomeworks();
 } else if (user.role == "teacher") {
@@ -65,3 +72,4 @@ async function getHomeworks() {
     });
   };
 };
+

@@ -7,27 +7,19 @@ const register = document.getElementById("register");
 const registerName = document.getElementById("register-name");
 const registerEmail = document.getElementById("register-email");
 const registerPassword = document.getElementById("register-password");
-const classesList = document.getElementById("select-options");
-const selectTitle = document.getElementById("select-title")
+const classesList = document.getElementById("class-select");
 const classes = fetch("/api/classes")
 .then(response => response.json())
 .then(data => {
   data.forEach(item => {
-    const option = document.createElement("div");
-    option.classList.add("option");
-    option.dataset.id = item.id;
+    const option = document.createElement("option");
+    option.value = item.id;
     option.textContent = item.name + " " + item.class;
     classesList.appendChild(option);
-
-    option.addEventListener("click", function () {
-      classId = option.dataset.id;
-      selectTitle.textContent = option.textContent;
-    });
-
   });
 });
-let role = null;
 let classId = null;
+let role = null;
 
 //логин
 const loginEmail = document.getElementById("login-email");
@@ -43,15 +35,19 @@ const roleTeacherButton = document.getElementById("teacher");
 const roleAdminButton = document.getElementById("admin");
 
 roleAdminButton.addEventListener("click", function () {
-  role == 'admin';
+  role = 'admin';
 });
 
 roleStudentButton.addEventListener("click", function () {
-  role == 'student';
+  role = 'student';
 });
 
 roleTeacherButton.addEventListener("click", function () {
-  role == 'teacher';
+  role = 'teacher';
+});
+
+classesList.addEventListener("change", function () {
+  classId = classesList.value;
 });
 
 function changeContainerSize() {
@@ -63,9 +59,6 @@ function changeContainerSize() {
     container.style.minHeight = height + "px";
   };
 };
-
-window.addEventListener("load", changeContainerSize);
-window.addEventListener("resize", changeContainerSize);
 
 loginTab.addEventListener("click", function () {
   login.classList.add("visible");
