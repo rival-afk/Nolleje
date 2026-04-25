@@ -7,7 +7,7 @@ import db
 
 auth_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-async def get_user (token = Depends(auth_scheme)):
+async def get_user_func (token = Depends(auth_scheme)):
   
   try:
     decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

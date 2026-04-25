@@ -15,7 +15,7 @@ import db
 from schemas import Register, Login, GradePost
 from security import hash_password, verify_password
 from jwt_handler import create_access_token
-from auth import get_user
+from auth import get_user_func
 
 app = FastAPI()
 
@@ -33,7 +33,7 @@ app.add_middleware(
 
 # <! Functions !> #         (для функций не связанных с эндпоинтами)
 
-async def get_current_student_func(current_user=Depends(get_user)):
+async def get_current_student_func(current_user=Depends(get_user_func)):
     async with db.pool.acquire() as conn:
         student = await conn.fetchrow("SELECT * FROM students WHERE user_id=$1", current_user["id"])
         
@@ -60,7 +60,7 @@ def root():
     )
 
 @app.get("/students/me/subjects")
-async def get_subjects(current_user = Depends(get_user)):
+async def get_subjects(current_user = Depends(get_user_func)):
     
     async with db.pool.acquire() as conn:
         subjects = await conn.fetch(
@@ -99,7 +99,7 @@ async def get_students(student_id: int):
     return [dict(row) for row in students]
 
 @app.get("/users/me")
-async def get_current_user(current_user = Depends(get_user)):
+async def get_current_user(current_user = Depends(get_user_func)):
     return current_user
 
 @app.get("/students/me")
@@ -163,7 +163,7 @@ async def get_homeworks (limit: Optional[int] = None, offset: Optional[int] = No
     return [dict(row) for row in homeworks]
 
 @app.get("/homework")
-async def get_homework (subject_id: int, current_user = Depends(get_user)):
+async def get_homework (subject_id: int, current_user = Depends(get_user_func)):
     
     async with db.pool.acquire() as conn:
         
@@ -225,11 +225,9 @@ async def get_ping():
     
     after = time.time_ns()
     
-    difference = after - before
+    difference = (after - before) / 1000000
     
-    diff_sec = difference / 1000000
-    
-    rounded_ds = round(diff_sec)
+    rounded_ds = round(difference)
     return {
         "message": "Pong!",
         "ping": f"{rounded_ds} ms"
@@ -272,7 +270,7 @@ async def get_classes():
     return [dict(row) for row in classes_list]
 
 @app.get("/auth/refresh")
-async def refresh_token(current_user = Depends(get_user)):
+async def refresh_token(current_user = Depends(get_user_func)):
     new_token = create_access_token(
         {"user_id": current_user["id"]}
     )
@@ -377,7 +375,7 @@ async def login(user: Login):
     return {"access_token": token}
 
 @app.post("/grades")
-async def grades (grades: GradePost, current_user = Depends(get_user)):
+async def grades (grades: GradePost, current_user = Depends(get_user_func)):
     
     
     if current_user["role"] != "teacher":
@@ -451,7 +449,7 @@ async def grades (grades: GradePost, current_user = Depends(get_user)):
     return {"status": "Successful"}
 
 @app.post("/select_class")
-async def post_get_class(class_id: int, current_user = Depends(get_user)):
+async def post_get_class(class_id: int, current_user = Depends(get_user_func)):
     
     if current_user["role"] != 'teacher':
         raise HTTPException(
