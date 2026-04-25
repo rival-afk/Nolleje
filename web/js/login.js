@@ -131,13 +131,9 @@ registerButton.addEventListener("click", function () {
     return;
   };
 
-  if (!classId) {
+  if (!classId || classId == undefined) {
     document.getElementById("error").textContent = "Выбери класс";
     document.getElementById("error").style.display = "block";
-  };
-
-  if (role = 'student') {
-    class_id = Number(class_id_str);
   };
 
   fetch("/api/auth/register", {

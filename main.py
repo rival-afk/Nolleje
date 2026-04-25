@@ -108,7 +108,7 @@ async def get_current_student(student = Depends(get_current_student_func)):
     class_id = student["class_id"]
     async with db.pool.acquire() as conn:
         student_data = await conn.fetchrow("""
-        SELECT classes.number || ' ' || classes.letter AS class, schools.name AS school_name FROM students
+        SELECT classes.number || ' «' || classes.letter || '»' AS class, schools.name AS school_name FROM students
         JOIN classes ON students.class_id = classes.id
         JOIN schools ON classes.school_id = schools.id
         WHERE students.id = $1

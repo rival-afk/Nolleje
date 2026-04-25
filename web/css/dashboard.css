@@ -1,5 +1,5 @@
 body {
-  background-color: #2a2a2a;
+  background-color: #0e0e0e;
   min-height: 100vh;
   min-width: 100vw;
   overflow-x: hidden;
@@ -9,38 +9,67 @@ body {
 }
 
 #header {
-  background-color: #ff0000;
+  background-color: #0e0e0e;
   display: flex;
   max-height: 50px;
   min-width: 100%;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 10px;
+  padding: 20px 20px;
   margin-bottom: 10px;
+  border-bottom: solid 2px #222222;
+  user-select: none;
 }
 
 #header img {
   width: auto;
-  height: 50px;
+  height: 25px;
   object-fit: contain;
 }
 
 #header nav {
   font-family: 'JetBrains Mono';
-  margin-right: 20px;
+  margin-right: 40px;
+  user-select: none;
 }
 
-#header a {
-  color: #ffffff;
+#header nav a {
+  color: #666666;
   text-decoration: none;
+  transition: color 0.3s;
+  font-weight: 500;
+  font-size: 20px;
+  margin-left: 20px;
+}
+
+#header a:hover, #header a:active {
+  color: #f0f0f0;
 }
 
 #user-name {
-  color: #e1e1e1;
+  color: #f0f0f0;
   font-family: "Unbounded";
   font-weight: 800;
   font-size: 100px;
-  background-color: #ff0000;
   margin-top: 20px;
+  margin-left: 15px;
+  margin-bottom: 20px;
   margin-bottom: 0;
+  max-height: 100px;
+}
+
+#user-class {
+  display: inline-block;
+  color: #666666;
+  font-family: "JetBrains Mono";
+  margin-left: 15px;
+  margin-top: 30px;
+}
+
+.red-title {
+  font-family: 'JetBrains Mono';
+  font-weight: 500;
+  color: #ff3355;
+  margin-left: 15px;
+  padding-top: 100px;
 }
